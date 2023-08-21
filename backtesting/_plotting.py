@@ -12,7 +12,7 @@ import pandas as pd
 
 from bokeh.colors import RGB
 from bokeh.colors.named import (
-    lime as BULL_COLOR,
+    limegreen as BULL_COLOR,
     tomato as BEAR_COLOR
 )
 from bokeh.plotting import figure as _figure
@@ -39,6 +39,7 @@ from bokeh.palettes import Category10
 from bokeh.transform import factor_cmap
 
 from backtesting._util import _data_period, _as_list, _Indicator
+
 
 with open(os.path.join(os.path.dirname(__file__), 'autoscale_cb.js'),
           encoding='utf-8') as _f:
@@ -342,7 +343,7 @@ return this.labels[index] || "";
                       index=np.r_[index, index[::-1]],
                       equity_dd=np.r_[equity, equity.cummax()[::-1]]
                   )),
-                  fill_color='#ffffea', line_color='#ffcb66')
+                  fill_color='rgba(176, 107, 107, 0.3)', line_color='rgba(176, 107, 107, 0.3)')
 
         # Equity line
         r = fig.line('index', source_key, source=source, line_width=1.5, line_alpha=1)
@@ -481,9 +482,9 @@ return this.labels[index] || "";
 
     def _plot_ohlc():
         """Main OHLC bars"""
-        fig_ohlc.segment('index', 'High', 'index', 'Low', source=source, color="black")
+        fig_ohlc.segment('index', 'High', 'index', 'Low', source=source, color=inc_cmap)
         r = fig_ohlc.vbar('index', BAR_WIDTH, 'Open', 'Close', source=source,
-                          line_color="black", fill_color=inc_cmap)
+                          line_color=inc_cmap, fill_color=inc_cmap)
         return r
 
     def _plot_ohlc_trades():
@@ -605,8 +606,8 @@ return this.labels[index] || "";
         fig_volume = _plot_volume_section()
         figs_below_ohlc.append(fig_volume)
 
-    if superimpose and is_datetime_index:
-        _plot_superimposed_ohlc()
+    # if superimpose and is_datetime_index:
+        # _plot_superimposed_ohlc()
 
     ohlc_bars = _plot_ohlc()
     if plot_trades:
@@ -630,7 +631,7 @@ return this.labels[index] || "";
                                                   code=_AUTOSCALE_JS_CALLBACK))
 
     plots = figs_above_ohlc + [fig_ohlc] + figs_below_ohlc
-    linked_crosshair = CrosshairTool(dimensions='both')
+    linked_crosshair = CrosshairTool(dimensions='both', line_color='#038c03')
 
     for f in plots:
         if f.legend:
@@ -642,12 +643,26 @@ return this.labels[index] || "";
             f.legend.spacing = 0
             f.legend.margin = 0
             f.legend.label_text_font_size = '8pt'
+            f.legend.label_text_color = 'white'
             f.legend.click_policy = "hide"
         f.min_border_left = 0
         f.min_border_top = 3
         f.min_border_bottom = 6
         f.min_border_right = 10
         f.outline_line_color = '#666666'
+        
+        f.legend.background_fill_color = "rgba(51, 51, 51, 0.5)"
+        
+        f.background_fill_color = "#000000"
+        f.grid.grid_line_color = "#005800"
+        f.border_fill_color = "black"
+        
+        f.xaxis.major_label_text_color = "white"
+        f.yaxis.major_label_text_color = "white"
+        
+        f.xaxis.axis_label_text_color = "white"
+        f.yaxis.axis_label_text_color = "white"
+        
 
         f.add_tools(linked_crosshair)
         wheelzoom_tool = next(wz for wz in f.tools if isinstance(wz, WheelZoomTool))
